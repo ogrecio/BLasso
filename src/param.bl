@@ -1,0 +1,24 @@
+*DATA FILE (max. 14 characters)*
+training_regressionP.data
+*MODEL INFORMATION
+150  - Number of total equations in the model (including permanent effects and covariates)****
+100  - Number of covariates in the model.
+0
+*NUMBER OF LEVELS OF FIXED AND RANDOM EFFECTS IN THE SAME ORDER AS IN THE DATA FILE (NOT INCLUDE GENETIC EFFECTS)*
+*A PRIORI INFORMATION* ('0' IF FLAT PRIOR; 2 LINES PER RANDOM EFFECT OTHERWISE: MEAN AND FREEDOM DEGREES). GENETIC, RESIDUAL AND OTHER RANDOM EFFECTS
+540000.d0 - A priori mean for residual variance ****
+3
+70000.d0 - A priori mean for permanent variance  ****
+3
+*INFORMATION ON THE THE TRAIT TO BE ANALYZED*
+trait             - Name of the trait to be analyzed
+0 - '1' if threshold trait; '0' if linear trait. IF '1': introduce number of categories in the next line.
+1 - '1' if missed data trait; '0' if not missed data. IF '1': introduce value to identify missed records in the next line.
+-9999.99d0
+*PARAMETERS TO IMPLEMENT MCMC AND GIBBS SAMPLING*
+20000 - Chain lenght *********
+2500  - Burn in period   *******
+1 - Lag period
+2 - '1'('2') Variances will be sampled using Metropolis-Hasting algorithm (Inverse-chi squared).
+540000.25d0 - Initial value for residual variance.  *****
+140000.2d0 - Initial value for permanent variance.  *****
