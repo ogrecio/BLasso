@@ -79,7 +79,7 @@ ii=1          !N˙mero de cadenas que se lanzan
 niter=1       !Numero de iteraciones por cada vez que se resuelve por Gauss-Seidel
 pf=1 !read *,pf
   print *,'Enter name of PARAMETER file'
-fpar='fort.rbf' ! read *,fpar
+fpar='param.bl' ! read *,fpar
  open (22,file=fpar, form='formatted', status='old')
 !***INTRODUZCA EL NOMBRE DE LOS FICHEROS**********
 !Fichero de datos:
