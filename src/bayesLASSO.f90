@@ -136,15 +136,7 @@ end do
    end if
    print *,'residual apriori variance=',apriorie(1,1)
    print *,'df=',apriorie(1,2)   
-
-   do i=1,n_rand-1
-   read (22,*) apriorir(i,1)
-   if (apriorir(i,1).eq.0) then
-      apriorir(i,2)=0
-   else
-      read (22,*) apriorir(i,2)
-   end if
-   end do      
+    
 !****DETERMINACIÓN Y NOMBRAMIENTO DE LOS CARACTERES********
 read (22,*)   !Saltar linea
 !name
@@ -185,10 +177,8 @@ read (22,*) lag
  end if
 !VARIANZAS INICIALES
  read (22,*) ve  !varianza del error
- read (22,*) vg  !varianza genómica
 
 print *,'VARIANCES USED IN FIRST ITERATION'
-print *,'genetic=',vg
 print *,'residual=',ve
 
 goto 28
@@ -222,7 +212,7 @@ endif
 !Sample VG
 scale=lambda**2
 do j=1,n_cov
-    if (abs(sol(j)).lt.0.00000000000001) sol(j)=0.0000001d0 !print *,'beta ',k,' lower than 1.E-08'
+    if (abs(sol(j)).lt.0.00000000001) sol(j)=0.000001d0 !print *,'beta ',k,' lower than 1.E-08'
     nu=sqrt(ve)*lambda/ abs(sol(j))
     tau(j)=inv_gauss (nu,scale,x1)
 
@@ -235,7 +225,7 @@ scale=0.d0
 do j=1,n_cov
     scale=scale+0.5d0*(vs(j)/ve)
 enddo
-call gamma2(n_cov+5.d0,1.d0/scale+.1d0,x2,lambda)
+call gamma2(n_cov+5.d0,1.d0/scale+1.1d0,x2,lambda)
 lambda=sqrt(lambda)
 
 write (35,*) lambda,mu,scale
@@ -248,7 +238,7 @@ sc_S=0.d0
 do i=1,n_datos
     sc_S=sc_S+error(i)*error(i)
 enddo
-call wishart(ntrait,sc_S+1.d0,(n_datos)+5.d0,ve)
+call wishart(ntrait,sc_S+apriorie(1,2)*apriorie(1,1) ,(n_datos)+apriorie(1,2) ,ve)
 
 end subroutine wishart_inv
 !____NON PARAMETRIC SUM OF SQUARES for additive genetic______
