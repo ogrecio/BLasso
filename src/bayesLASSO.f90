@@ -136,7 +136,7 @@ end do
    end if
    print *,'residual apriori variance=',apriorie(1,1)
    print *,'df=',apriorie(1,2)   
-    
+     
 !****DETERMINACIÓN Y NOMBRAMIENTO DE LOS CARACTERES********
 read (22,*)   !Saltar linea
 !name
@@ -176,8 +176,9 @@ read (22,*) lag
    stop
  end if
 !VARIANZAS INICIALES
- read (22,*) ve  !varianza del error
-
+read (22,*) ve  !residual variance
+read (22,*) lambda  !lambda initial value
+ vg=1
 print *,'VARIANCES USED IN FIRST ITERATION'
 print *,'residual=',ve
 
@@ -206,18 +207,19 @@ integer:: xx(n_efectos) !nf=numero de efectos fijos + aleatorios + covariables
 real*8::nu,scale,temp,inv_gauss
 
 if (nciclos.eq.1) then !INITILIAZE lambda and inverse gaussian function
-lambda=10.d0
+lambda=1.d0
 endif
 
 !Sample VG
 scale=lambda**2
 do j=1,n_cov
-    if (abs(sol(j)).lt.0.00000000001) sol(j)=0.000001d0 !print *,'beta ',k,' lower than 1.E-08'
+    !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
     nu=sqrt(ve)*lambda/ abs(sol(j))
     tau(j)=inv_gauss (nu,scale,x1)
-
     vs(j)=ve/tau(j)
+    if (nu.gt.999999999.000) vs(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
     vs_F(j)=vs_F(j)+vs(j)
+
 end do
 
 !Sample lambda parameter from a gamma distribution
@@ -225,7 +227,7 @@ scale=0.d0
 do j=1,n_cov
     scale=scale+0.5d0*(vs(j)/ve)
 enddo
-call gamma2(n_cov+5.d0,1.d0/scale+1.1d0,x2,lambda)
+call gamma2(n_cov+1.d0,scale+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
 
 write (35,*) lambda,mu,scale
@@ -238,7 +240,7 @@ sc_S=0.d0
 do i=1,n_datos
     sc_S=sc_S+error(i)*error(i)
 enddo
-call wishart(ntrait,sc_S+apriorie(1,2)*apriorie(1,1) ,(n_datos)+apriorie(1,2) ,ve)
+call wishart(ntrait,sc_S+1.d0,(n_datos)+3.d0,ve)
 
 end subroutine wishart_inv
 !____NON PARAMETRIC SUM OF SQUARES for additive genetic______
@@ -505,7 +507,7 @@ subroutine predictions
 
  do n=1,n_yng
     read (11,*) y_real,id_yng,yng_snp(1:n_cov)
-    y_est=muf 
+    y_est=0.d0 
     do i=1,n_cov
        y_est=y_est+yng_snp(i)*sol_efectos(i)
     enddo
@@ -626,7 +628,7 @@ CLOSE (10)
    END IF
 
 call cpu_time(tiempo1)
-print *,'    COMIENZA GIBBS'
+print *,'    START GIBBS'
 gebv=0.d0;sol=0.01d0;temp=0.d0;sol_efectos=0.d0;vs=0.d0;nm=0
 lambda=0;mu=0.d0;error=y;mean=0.d0;vep1=0.d0;vep2=0.d0;muf=0.d0
 sd_st=0.0001d0;tot=0;acc=0;cont=0
@@ -643,8 +645,7 @@ end do
 ENDIF
 do nciclos=1,n_ciclos
  ii=1
-
-    print '(a7,i9,4(f16.4,a3))','BURN-IN',nciclos,vg,'vg ',ve,'ve'
+if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration ',nciclos,';ve=',ve,';lambda=',lambda
    
 
 
@@ -667,9 +668,8 @@ do nciclos=1,n_ciclos
        do i=1,neq
 	     sol_efectos(i)=sol_efectos(i)+sol(i)
        end do
-       write(*,*) nciclos,'vg-1=',vg,'mean=',mu
-       write(*,*) '  RUNNING MEAN= ',muf/float(nm)
        if (mod(nciclos,500).eq.0) then
+          write(*,*) '  RUNNING MEAN= ',muf/float(nm)
                 open (32,file='GEBV_GRS.txt', form='formatted')
 		gebv=0.d0
 		do i=1,n_datos
