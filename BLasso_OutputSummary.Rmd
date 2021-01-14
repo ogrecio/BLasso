@@ -1,0 +1,107 @@
+---
+title: "Output Summary from BLasso"
+author: "Oscar Gonzalez-Recio"
+date: " January 14th, 2021"
+output:
+  html_document: 
+    code_folding: hide
+    collapsed: yes
+    fig_caption: yes
+    fig_width: 6
+    highlight: tango
+    number_sections: yes
+    theme: united
+    toc: yes
+    toc_float: yes
+  pdf_document: # options pour sorties pdf
+    toc: yes
+    toc_depth: '3'
+  word_document: default
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(pander) # allow a better impression of tables
+
+```
+
+
+```{r, output_files, include='TRUE'}
+
+ beta_hat<-read.table("SOL_SNPs.trait")
+ beta<-read.table("Beta.txt")
+
+ pred_train<-read.table("GEBV_GRS.txt")
+ pred_test<-read.table("testing.pred.pl",header = T)
+ y_real<-read.table("yTRUE.txt")
+```
+
+
+# PREDICTIVE ACCURACY in the testing set
+
+```{r, include='FALSE'}
+
+	  ytrain<-read.table(file='training_regression.txt',header=F)
+
+
+```
+
+The Pearson correlation between observed and predicted phenotype in the training set was `r round(cor(pred_train$V3,y_real$V1[1:length(pred_train$V3)]), 2)`.
+
+Next is the scatter plot of the predicted and observed phenotypes in the training set.
+
+```{r, predictive_accuracy_train, include='TRUE'}
+
+
+ plot(pred_train$V3,y_real$V1[1:length(pred_train$V3)],xlab="yHat",ylab="Real y")
+ plot(pred_train$V3,pred_train$V2,ylab="yHat",xlab="Observed y")
+ lm.fit<-lm(pred_train$V2~pred_train$V3)
+ abline(lm.fit,col=2)
+```
+
+
+The variance explained in the model (R2) was `r round( summary(lm.fit)$adj.r.squared , 2)`.
+
+
+```{r, include='FALSE'}
+
+	  ytest<-read.table(file='testing_regression.txt',header=F)
+
+
+```
+
+The Pearson correlation between observed and predicted phenotype in the testing set was `r round(cor(pred_test$GEBV_GRS,y_real$V1[(length(pred_train$V3)+1):length(y_real$V1)]), 2)`.
+
+Next is the scatter plot of the predicted and observed phenotypes in the testing set.
+
+```{r, predictive_accuracy_test, include='TRUE'}
+
+
+ plot(pred_test$GEBV_GRS,pred_test$ACTUAL_PHENTP,xlab="Prediction",ylab="Observed")
+ lm.fit<-lm(pred_test$ACTUAL_PHENTP~pred_test$GEBV_GRS)
+ abline(lm.fit,col=2)
+```
+
+
+The variance explained in the model (R2) was `r round( summary(lm.fit)$adj.r.squared , 2)`.
+
+# VARIABLE EFFECT
+
+The features with larger (absolute) effect were:
+
+```{r, variable_importance, include='TRUE'}
+
+beta_hat_subset<-beta_hat[order(abs(beta_hat$V3),decreasing = T),]
+
+pander(beta_hat_subset[1:20,])
+
+```
+
+The distribution of the variable importance was:
+
+```{r, variable_importance2, include='TRUE'}
+
+plot(beta_hat$V3,beta$V1,xlab="beta_Hat",ylab = "beta", main="")
+
+```
