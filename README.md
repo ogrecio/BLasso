@@ -26,24 +26,23 @@ BLasso must be run in a command line mode. The execution is simple, just type in
 ./BLasso_'system'.x 
 ```
 
-BLasso needs a parameter file named 'params.txt' 
+BLasso needs a parameter file named 'param.bl' 
 
 >Caution:  
->  store different runs in different folders, or RanFoG will overwrite previous results.
-
-At each iteration the program prompts the iteration number, the mean squared error in the testing set, the vaue of the Loss Function in the out of bag samples (which provides an estimate for the generalization error), and the number of records in the out of bag samples.
+>  store different runs in different folders, or BLasso may overwrite previous results.
+The program will prompt the residual variance and posterior mean of the intercept every 500 iterations.
 
 
 # 2 - Input Files
 
 ## Data files
-The program needs two input files: a training set and a testing set. Inferences will be done using the training set, whereas the testing set will be used to test the predictive ability of Random Forest under the given scenario. Both files must have the same format, with p+2 columns separated by spaces. First column is the numerical response variable (linear phenotype or disease status). Second column is the alphanumeric ID of the individual. Then, p columns with the value of each feature. 
+The program needs two input files: a training set and a testing set. Feature coefficients will be inferred using the training set, whereas the testing set will be used to predict genome-enabled breeding values. Both files must have the same format, with p+2 columns separated by spaces. First column is the numerical response variable (linear or categorical phenotype). Second column is the alphanumeric ID of the individual. Then, p columns with the value of each feature (SNP code, allele dose or dummy variable for other systematic effects). 
 
 ```
 outcome ID s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 s14 s15 s16 s17 s18 s19 s20
 ```
 
-In case that predictions are not neccesary, the user must still provide a testing set. Just copy a few lines of the training file to create a testing file, and use it as if it were a real testing file. Then, discard the 'Trees.test' and 'Predictions.txt' files.
+In case that predictions are not neccesary, the user must still provide a testing set. Just copy a few lines of the training file to create a testing file, and use it as if it were a real testing file. Then, discard the 'testing.pred.txt' file.
 
 ### Example of regression problems:
 
@@ -58,23 +57,7 @@ In case that predictions are not neccesary, the user must still provide a testin
 
 
 
-### Example of classification problems:
-
-Disease statuts must be coded as 0=non-affected or 1=affected. Predictions from RanFoG will indicate the genetic probability of the animal to suffer the disease.
-
-
-
-* *Training Data file* *
-
-![Training data set](training_cat.png)
-
-
-* *Testing Data file* *
-
-![Testing data set](testing_cat.png)
-
-
-## params.txt file 
+## param.bl file 
 The parameter file needs the following options:
 
 
@@ -117,7 +100,7 @@ This is useful for problems in which more emphasis needs to be placed on assigni
 
 Below is an example of the *params.txt* file.
 
-![Parameter file](params.txt)
+![Parameter file](param.bl)
 
 **Note:** the param.txt file must be in the same directory as RanFoG.jar The 'java -jar RanFog.jar' command will implement the neccesary classes and methods of the java virtual machine in your computer to run the compressed java code.
 
