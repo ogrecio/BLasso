@@ -87,10 +87,11 @@ The text must be kept in the parameter file for clarification, and change the va
 # 3 - Output files
 
 
-- *CONVERGENCE.trait* -- The second column of this file provides the condictional samples for the residual variance at each Gibbs sample iteration for post Gibbs analysis.
+- *CONVERGENCE.trait* -- The file provides the conditional samples for the lambda, mu and scale (in this order) at each Gibbs sample iteration for post Gibbs analysis.
+
+- *VAR_DISTRIB.trait* -- The first column of this file provides the conditional samples for the residual variance at each Gibbs sample iteration for post Gibbs analysis.
 
 - *SOL_SNPs.trait* -- This file is organized in columns ordered by feature in the input file. Second column is the order of the feature in the input file, and third column is the posterior mean of effect estimate. Four column is the prediction error variance for the estimate.
-
 
 - *GEBV_GRS.txt* -- This file contains three columns. The first one is the corresponding ID of individuals in the training set. The second one is the corresponding phenotype provided in the training set. The third column is the estimated value from Bayesian LASSO regression. 
 
