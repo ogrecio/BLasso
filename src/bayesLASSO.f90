@@ -494,7 +494,7 @@ subroutine predictions
 	real*8, allocatable :: yng_snp(:)
 	real*8:: y_est,y_real
 
- open (79,file='testing.pred.pl', form='formatted')
+ open (79,file='testing.pred.txt', form='formatted')
  n_yng=0
  DO  !Lee el número de lineas en el archivo de genealogia
   read (11,*,iostat=io)
