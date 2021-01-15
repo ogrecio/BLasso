@@ -33,7 +33,7 @@ library(pander) # allow a better impression of tables
  beta<-read.table("Beta.txt")
 
  pred_train<-read.table("GEBV_GRS.txt")
- pred_test<-read.table("testing.pred.pl",header = T)
+ pred_test<-read.table("testing.pred.txt",header = T)
  y_real<-read.table("yTRUE.txt")
 ```
 
@@ -63,15 +63,7 @@ Next is the scatter plot of the predicted and observed phenotypes in the trainin
 
 The variance explained in the model (R2) was `r round( summary(lm.fit)$adj.r.squared , 2)`.
 
-
-```{r, include='FALSE'}
-
-	  ytest<-read.table(file='testing_regression.txt',header=F)
-
-
-```
-
-The Pearson correlation between observed and predicted phenotype in the testing set was `r round(cor(pred_test$GEBV_GRS,y_real$V1[(length(pred_train$V3)+1):length(y_real$V1)]), 2)`.
+The Pearson correlation between observed and predicted phenotype in the testing set was `r round(cor(pred_test$GEBV_GRS,pred_test$ACTUAL_PHENTP), 2)`.
 
 Next is the scatter plot of the predicted and observed phenotypes in the testing set.
 
