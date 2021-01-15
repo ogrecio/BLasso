@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img width="200" height="200" src="Logo.PNG">
+  <img width="200" height="200" src="logo.png">
 </p>
 
    **BLasso** is fortran code to implement Bayesian Lasso in a genome-enabled prediction framework
