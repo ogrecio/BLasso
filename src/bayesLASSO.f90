@@ -189,8 +189,8 @@ goto 28
  308 format (a6)
   write (34,308) name
   write (31,308) name
-  write (34,*) 'SNPs VARIANCE  RESIDUAL_VARIANCE'
-  write (31,*) '    VG      VE         h           '
+  write (34,*) '  LAMBDA      MU        SCALE'
+  write (31,*) ' VE       '
 
 close (22)
 
@@ -230,7 +230,7 @@ enddo
 call gamma2(n_cov+1.d0,scale+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
 
-write (35,*) lambda,mu,scale
+write (34,*) lambda,mu,scale
 
 !   call scS
 !   call wishart(ntrait,sc_S+170.d0*5,(n_datos)+5.d0,vg)
@@ -660,7 +660,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
 
 !_____SE ACUMULAN LOS VALORES ADITIVOS Y DE LAS VARIANZAS______
 
-   write (34,340) vg,ve
+   write (31,340) ve
 
    if (nciclos.gt.burnin) then
        nm=nm+1
