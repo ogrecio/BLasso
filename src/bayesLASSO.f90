@@ -38,7 +38,7 @@ real*8, allocatable:: t(:),ln_t(:),t_c(:),snp(:),snp2(:)
 	!sv(=1para metropolis hasting;=2para wishart invertida)
    real*8::alfa,h,r,y_mean,denomh,alfa_old,llhood,lambda
    real*8::mu,ve,ve_c,vg,vg_c,sd_st,apriorig(1,2),apriorie(1,2)
-   real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),vs_F(:),aprioris(:,:),tau(:)
+   real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),aprioris(:,:),tau(:),tau_F(:)
 
 !OTROS (contadores,semillas, formatos, etc)
 	integer :: io,contador,idum,horas,minutos,i,j,posj,k,q,df,n_df
@@ -102,9 +102,9 @@ n_cov=n_efectos
 print *,'# COVARIATES=', n_cov
 n_rand=0 !This version does not allowed effects with a covariance structure
 ALLOCATE (nf(n_efectos),nf_rand(n_rand-1),va(n_rand-1),va_c(n_rand-1),inivar(n_rand),&
-          apriorir(n_rand-1,2),aprioris(n_cov,2),vs(n_cov),vs_F(n_cov))
-vs=0.01d0
-vs_F=0.d0
+          apriorir(n_rand-1,2),aprioris(n_cov,2),tau(n_cov),tau_F(n_cov))
+tau=0.01d0
+tau_F=0.d0
 read (22,*)   !Saltar linea
 nf(1)=0
 DO k=1,n_efectos-1
@@ -215,17 +215,17 @@ scale=lambda**2
 do j=1,n_cov
     !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
     nu=sqrt(ve)*lambda/ abs(sol(j))
-    tau(j)=inv_gauss (nu,scale,x1)
-    vs(j)=ve/tau(j)
-    if (nu.gt.999999999.000) vs(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    vs_F(j)=vs_F(j)+vs(j)
+    vs(j)=inv_gauss (nu,scale,x1)  !tau
+    tau(j)=ve/vs(j)   !tau
+    if (nu.gt.999999999.000) tau(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
+    tau_F(j)=tau_F(j)+tau(j)
 
 end do
 
 !Sample lambda parameter from a gamma distribution
 scale=0.d0
 do j=1,n_cov
-    scale=scale+0.5d0*(vs(j)/ve)
+    scale=scale+0.5d0*(tau(j)/ve)
 enddo
 call gamma2(n_cov+1.d0,scale+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
@@ -361,7 +361,7 @@ do j=1,n_cov
     mean=0.d0;lhs=0.d0
     lhs=xpx(j)
     rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
-    temp=rhs/(lhs+ve/vs(j))
+    temp=rhs/(lhs+ve/tau(j))
     error=error-valor(:,j)*(temp-sol(j))
     sol(j)=temp
 enddo
@@ -572,7 +572,7 @@ rewind (10)
 neq=(nf(n_efectos)+1)
 
 ALLOCATE (id(n_datos),padre(0:n_animal), madre(0:n_animal),codcontrol(n_animal),&
-   y1(n_datos),y2(n_datos),y(n_datos),cen(n_datos),d(0:n_animal),sol(neq),error(n_datos),tau(n_cov),&
+   y1(n_datos),y2(n_datos),y(n_datos),cen(n_datos),d(0:n_animal),sol(neq),error(n_datos),vs(n_cov),&
    solf(n_animal),gebv(n_animal),vep1(n_animal),vep2(n_animal),sol_efectos(neq),rhs(neq),&
    valor(n_datos,n_efectos),t(n_cat-1),ln_t(n_cat-1),t_c(n_cat-1),ani(n_datos),xpx(n_cov))
    
@@ -629,7 +629,7 @@ CLOSE (10)
 
 call cpu_time(tiempo1)
 print *,'    START GIBBS'
-gebv=0.d0;sol=0.01d0;temp=0.d0;sol_efectos=0.d0;vs=0.d0;nm=0
+gebv=0.d0;sol=0.01d0;temp=0.d0;sol_efectos=0.d0;tau=0.d0;nm=0
 lambda=0;mu=0.d0;error=y;mean=0.d0;vep1=0.d0;vep2=0.d0;muf=0.d0
 sd_st=0.0001d0;tot=0;acc=0;cont=0
 !********************COMIENZA GIBBS***********************
@@ -692,11 +692,11 @@ print *,'writting solutions and vep'
  muf=muf/float(nm)
  do i=1,neq
   sol_efectos(i)=sol_efectos(i)/float(nm)
-  vs_F(i)=vs_F(i)/float(nm)
+  tau_F(i)=tau_F(i)/float(nm)
  end do
 
  do i=1,n_efectos
-  write (29,'(a6,3x,i7,3x,f15.8,3x,f15.8)') 'Alpha',i,sol_efectos(i),vs_F(i)
+  write (29,'(a6,3x,i7,3x,f15.8,3x,f15.8)') 'Alpha',i,sol_efectos(i),tau_F(i)
  end do
 
  
