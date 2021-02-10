@@ -68,7 +68,7 @@ end module variables
 MODULE inicial
 !*****************************************************************************
 !*En este archivo se marcan los valores iniciales, la longitud de la cadena, *
-!*el periodo de quemado, el 'lag', el algoritmo para muestrear las varianzas,* 
+!*el periodo de quemado, el 'lag', el algoritmo para muestrear las varianzas,*
 !* y se determina que caracteres son umbrales                                *
 !*****************************************************************************
 USE variables
@@ -86,11 +86,11 @@ fpar='param.bl' ! read *,fpar
 !***INTRODUZCA EL NOMBRE DE LOS FICHEROS**********
 !Data file:
 read (22,*)   !Saltar linea
-read (22,*) fdatos 
+read (22,*) fdatos
 print *,'DATA FILE=', fdatos
  open (10,file=fdatos, form='formatted', status='old')
 !testing file:
-read (22,*) ftest 
+read (22,*) ftest
 print *,'Testing FILE=', ftest
  open (11,file=ftest, form='formatted', status='old')
 !****DETERMINACION DEL NUMERO DE CARACTERES, EFECTOS Y NIVELES******
@@ -135,16 +135,16 @@ end do
       read (22,*) apriorie(1,2)
    end if
    print *,'residual apriori variance=',apriorie(1,1)
-   print *,'df=',apriorie(1,2)   
-     
+   print *,'df=',apriorie(1,2)
+
 !****DETERMINACIÓN Y NOMBRAMIENTO DE LOS CARACTERES********
 read (22,*)   !Saltar linea
 !name
    read (22,*) name
 !umbral/continuo
-   read (22,*) umbral 
+   read (22,*) umbral
    if (umbral.eq.1) then
-      read (22,*) n_cat !#categories 
+      read (22,*) n_cat !#categories
 	  print *,name,' is a threshold trait with ',n_cat,' categories'
    else
 	  print *,name,' is a linear trait'
@@ -160,13 +160,13 @@ read (22,*)   !Saltar linea
 
 !***PARAMETROS PARA IMPLEMENTAR GIBBS**********
 read (22,*)   !Saltar linea
- read (22,*) n_ciclos 
+ read (22,*) n_ciclos
  print *, 'Lenght of chain = ',n_ciclos
- read (22,*) burnin 
+ read (22,*) burnin
  print *, 'Burn-in = ',burnin
-read (22,*) lag 
+read (22,*) lag
  print *,'Lag = ',lag
- sv=2 !This version is optimized for sampling variances with an inverted Wishart prior 
+ sv=2 !This version is optimized for sampling variances with an inverted Wishart prior
  if (sv.eq.2) then
    print *,'Variances will be sampled with an inversed-Wishart'
  else if (sv.eq.1) then
@@ -260,7 +260,7 @@ sc_S=dot_product(tt(:),sol(:))
 return
 end subroutine scS
 ! ********************************************************************************
-  subroutine wishart(ntrait,sc,ne,V) 
+  subroutine wishart(ntrait,sc,ne,V)
     character (len=6) :: form*6
     integer :: i, j,ntrait
     real*8 :: ne,alfa, beta,v,sc,u
@@ -277,7 +277,7 @@ end subroutine scS
        call gamma(alfa, beta, x1, u) ! n-2,0.5,x1,u
 !      v=sc/u; goto 2
        t(i,i) = sqrt(u)
-       do  j = 1, i-1  ! lower 
+       do  j = 1, i-1  ! lower
           u =  gasdev(x1)
           t(j,i) = u
        end do
@@ -399,7 +399,7 @@ if (n_cat.gt.2) then
      else if ((sc_t1-sc_t0).lt.-50.0d0) then
         ratio=0.0d0
      else
-        ratio= exp(sc_t1-sc_t0) 
+        ratio= exp(sc_t1-sc_t0)
      end if
      yy=unif(x1)
 
@@ -422,8 +422,8 @@ if (cont.eq.100) then
    acc=0
    cont=0
 end if
-   print *,t(1:n_cat-1)  
-   write (50,'(15f12.9)') t(1:n_cat-1)  
+   print *,t(1:n_cat-1)
+   write (50,'(15f12.9)') t(1:n_cat-1)
 end if
 end subroutine thresholds
 
@@ -457,14 +457,14 @@ return
 end subroutine liabilities
 
 
-subroutine sct(th,sc_t)   
+subroutine sct(th,sc_t)
 real*8::th(n_cat-1),sc_t,pdf1,pdf2
   sc_t=0.d0
   DO i=1,n_datos
    temp=y(i)-error(i)
         if (y1(i).eq.1) then
           call normp((th(1)-temp)/dsqrt(ve),p,q,pdf1)
-          sc_t=sc_t+log(pdf1)  
+          sc_t=sc_t+log(pdf1)
         else if (y1(i).eq.n_cat) then
          call normp((th(y1(i)-1)-temp)/dsqrt(ve),p,q,pdf1)
           sc_t=sc_t+log(1-pdf1)
@@ -503,11 +503,11 @@ subroutine predictions
  END DO
  rewind (11)
  allocate (yng_snp(n_cov))
- write (79,*) 'ANIMAL  ACTUAL_PHENTP GEBV_GRS'
+ write (79,*) 'SampleID  ACTUAL_PHENTP GEBV_GRS'
 
  do n=1,n_yng
     read (11,*) y_real,id_yng,yng_snp(1:n_cov)
-    y_est=0.d0 
+    y_est=0.d0
     do i=1,n_cov
        y_est=y_est+yng_snp(i)*sol_efectos(i)
     enddo
@@ -575,10 +575,10 @@ ALLOCATE (id(n_datos),padre(0:n_animal), madre(0:n_animal),codcontrol(n_animal),
    y1(n_datos),y2(n_datos),y(n_datos),cen(n_datos),d(0:n_animal),sol(neq),error(n_datos),vs(n_cov),&
    solf(n_animal),gebv(n_animal),vep1(n_animal),vep2(n_animal),sol_efectos(neq),rhs(neq),&
    valor(n_datos,n_efectos),t(n_cat-1),ln_t(n_cat-1),t_c(n_cat-1),ani(n_datos),xpx(n_cov))
-   
+
 write(*,*) 'Reading data'
 
-DO i=1,n_datos 
+DO i=1,n_datos
         read (10,*,iostat=io) y(i),id(i),valor(i,1:n_cov)
         if (mod(i,500).eq.0) write (*,*) i
         y1(i)=y(i)
@@ -588,11 +588,11 @@ DO i=1,n_datos
         IF (io.ne.0) EXIT
 END DO
 io=0
- 
+
 
   !call ginv1(valor,n_datos,n_datos,0.000001d0,irango)
 
-    
+
   print *,'****READING DATA FILE****'
   DO i=1,3
     print *,''
@@ -646,7 +646,7 @@ ENDIF
 do nciclos=1,n_ciclos
  ii=1
 if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration ',nciclos,';ve=',ve,';lambda=',lambda
-   
+
 
 
  !RESUELVE POR GAUSS-SEIDEL
@@ -670,7 +670,8 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
        end do
        if (mod(nciclos,500).eq.0) then
           write(*,*) '  RUNNING MEAN= ',muf/float(nm)
-                open (32,file='GEBV_GRS.txt', form='formatted')
+          open (32,file='GEBV_GRS.txt', form='formatted')
+          write (32,*) 'SampleID ObservedPhenotype GEBV'
 		gebv=0.d0
 		do i=1,n_datos
 			do j=1,n_cov
@@ -681,7 +682,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
 		close(32)
 	  endif
     end if
-  
+
  340 format (f16.5,5x,f16.4,5x,f16.5)
 end do
 
@@ -699,8 +700,10 @@ print *,'writting solutions and vep'
   write (29,'(a6,3x,i7,3x,f15.8,3x,f15.8)') 'Alpha',i,sol_efectos(i),tau_F(i)
  end do
 
- 
- open (32,file='VALORES_GENETICOS.trait', form='formatted')
+
+ open (32,file='GEBV_GRS.txt', form='formatted')
+ write (32,*) 'SampleID ObservedPhenotype GEBV'
+
  gebv=0.d0
  do i=1,n_datos
   do j=1,n_cov
@@ -815,7 +818,7 @@ end program main_gibbs
        real*8 y
        real*8 z
        real*8 a1, a2, a3, b1, b2, c1, c2, c3, c4, c5, c6
-       real*8 con, d1, d2, d3, d4, d5, ltone, p, q, r, utzero 
+       real*8 con, d1, d2, d3, d4, d5, ltone, p, q, r, utzero
        a1 = 5.75885480458
        a2 = 2.62433121679
        a3 = 5.92885724438
@@ -877,7 +880,7 @@ end program main_gibbs
 !  Reference:
 !    J Beasley and S Springer,
 !    The Percentage Points of the Normal Distribution,
-!    Algorithm AS 111, 
+!    Algorithm AS 111,
 !    Applied Statistics,
 !    Volume 26, Number ?, pages 118-121, 1977.
 !
@@ -935,7 +938,7 @@ end program main_gibbs
            ppnd = -ppnd
          end if
        else
-   
+
          ifault = 1
          ppnd = 0.0
        !  write ( *, * ) ' '
@@ -943,9 +946,9 @@ end program main_gibbs
        !  write ( *, * ) '  P <= 0 or P >=1.'
        !  write ( *, * ) '  PPND value would be infinite.'
        end if
-       return 
+       return
        end
- 
+
 
 
 subroutine normp ( z, p, q, pdf )
@@ -1085,7 +1088,7 @@ end
       implicit doubleprecision (a-h,o-z)        !
       doubleprecision s1,unif                   !
       lunif=int(unif(s1)*ll)+1                  !
-      return                                    ! 
+      return                                    !
       end                                       !
 !_______________________________________________!
 
@@ -1106,7 +1109,7 @@ end
 
 !______________SUB XNOR______________________________
  !Calcula la abcisa para cualquier función           !
- ! de distribución prob                              ! 
+ ! de distribución prob                              !
       FUNCTION XNOR(prob)                            !
       implicit doubleprecision (a-h,o-z)             !
       if (prob.lt..5) then                           !
@@ -1116,7 +1119,7 @@ end
       else                                           !
       xnor=0.                                        !
       end if                                         !
-      t=dsqrt (log(1./(p*p)))                        !  
+      t=dsqrt (log(1./(p*p)))                        !
       x=t-(2.515517+t*(.802853+t*.010328))/&         !
           (1.+t**(1.432788+t*(.189269+t*.001308)))   !
       if (p.eq.prob) then                            !
@@ -1183,7 +1186,7 @@ end
         upper = .false.
 !c        print *,'t-ini ', ini,' t-fin ', fin,' media ',
 !c     1          mean,' varianza ',var
-        !estandarizar umbrales 
+        !estandarizar umbrales
         p_ini = (ini - mean)/dsqrt(var)
         p_fin = (fin - mean)/dsqrt(var)
         p_ini = alnorm(p_ini, upper)
@@ -1197,7 +1200,7 @@ end
             trun = ( ini + fin )/2.0d0
 !		 write (*,*) 'CUIDADO!! muestreando liabilities'
 !           write (*,*) 'a mas de 4 desviaciones tipicas.'
-        end if  
+        end if
         !print *,'sampleo de la truncada ',trun
 !c        pause
         return
@@ -1243,14 +1246,14 @@ end
       END function
 
 
-     
+
       SUBROUTINE gamma2(shape,rate,x2,xx)
       !**********************
       !***MUESTREA DE UNA ***
       !*** FUNCION GAMMA  ***
       !**********************
-      !*  @arg rate parameter (lambda) 
-      !*  @arg shape parameter (r) 
+      !*  @arg rate parameter (lambda)
+      !*  @arg shape parameter (r)
       !*  Algorithm to sample from a gamma distribution. Ahrens and Dieter (1974) Computing, 12:223-246.
        !*/
        real*8  :: rate ,shape
@@ -1281,7 +1284,7 @@ end
            if (uu.gt.exp(b*log(x/b)-t+log(1+t**2/c)) ) goto 2
        endif
        xx=(x-1.d0)*rate
-       
+
        return
       END SUBROUTINE gamma2
 !==================================================
@@ -1341,7 +1344,7 @@ END FUNCTION inv_gauss
 40                a(ii,i)=a(ii,i)/a(i,i)
          endif
 10    continue
- 
+
       do 100 i=1,n
          if (a(i,i).eq.0.) then
               do 150 ii=i+1,n
@@ -1363,7 +1366,7 @@ END FUNCTION inv_gauss
 300           continue
           endif
 100     continue
- 
+
       do 110 j=1,n
          do 110 i=j,n
               sum=0
