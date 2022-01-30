@@ -20,6 +20,15 @@ Download the executable file for your operating system:
 MacOSX .
 Linux .
 
+It is also possible to clone the repository and compile the source code (e.g. with [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries)):
+```
+mkdir BLASSO
+cd BLASSO
+git clone https://github.com/ogrecio/BLasso.git
+gfortran src/bayesLASSO.f90 -O3 -o BLasso_linux.x
+
+```
+
 BLasso must be run in a command line mode. The execution is simple, just type in the command line the following:
 
 ```
