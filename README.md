@@ -22,9 +22,9 @@ Linux .
 
 It is also possible to clone the repository and compile the source code (e.g. with [gfortran](https://gcc.gnu.org/wiki/GFortranBinaries)):
 ```
-mkdir BLASSO
-cd BLASSO
+mkdir GWP
 git clone https://github.com/ogrecio/BLasso.git
+cd BLasso
 gfortran src/bayesLASSO.f90 -O3 -o BLasso_linux.x
 
 ```
