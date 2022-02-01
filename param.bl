@@ -1,6 +1,6 @@
 *DATA FILES (max. 60 characters)*
-training_regression.txt        -Training file
-testing_regression.txt         -Testing file
+data/training_regression.txt        -Training file
+data/testing_regression.txt         -Testing file
 *MODEL INFORMATION
 500  - Number of covariates in the model.
 *NUMBER OF LEVELS OF FIXED AND RANDOM EFFECTS IN THE SAME ORDER AS IN THE DATA FILE (NOT INCLUDE GENETIC EFFECTS)*
