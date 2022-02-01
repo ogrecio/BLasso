@@ -30,11 +30,11 @@ library(pander) # allow a better impression of tables
 ```{r, output_files, include='TRUE'}
 
  beta_hat<-read.table("SOL_SNPs.trait")
- beta<-read.table("Beta.txt")
+ beta<-read.table("data/Beta.txt")
 
  pred_train<-read.table("GEBV_GRS.txt",header=T)
- pred_test<-read.table("testing.pred.txt",header = T)
- y_real<-read.table("yTRUE.txt")
+ pred_test<-read.table("data/testing.pred.txt",header = T)
+ y_real<-read.table("data/yTRUE.txt")
 ```
 
 
