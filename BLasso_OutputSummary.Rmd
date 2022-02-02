@@ -42,7 +42,7 @@ library(pander) # allow a better impression of tables
 
 ```{r, include='FALSE'}
 
-	  ytrain<-read.table(file='training_regression.txt',header=F)
+	  ytrain<-read.table(file='data/training_regression.txt',header=F)
 
 
 ```
