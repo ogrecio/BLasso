@@ -33,7 +33,7 @@ library(pander) # allow a better impression of tables
  beta<-read.table("data/Beta.txt")
 
  pred_train<-read.table("GEBV_GRS.txt",header=T)
- pred_test<-read.table("data/testing.pred.txt",header = T)
+ pred_test<-read.table("testing.pred.txt",header = T)
  y_real<-read.table("data/yTRUE.txt")
 ```
 
