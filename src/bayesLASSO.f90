@@ -206,21 +206,6 @@ subroutine wishart_inv
 integer:: xx(n_efectos) !nf=numero de efectos fijos + aleatorios + covariables
 real*8::nu,scale,rate,temp,inv_gauss
 
-if (nciclos.eq.1) then !INITILIAZE lambda and inverse gaussian function
-lambda=1.d0
-endif
-
-!Sample VG
-scale=lambda*lambda
-do j=1,n_cov
-    !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    nu=sqrt(ve*scale / (sol(j)*sol(j)) )
-    inv_tau2(j)=inv_gauss (nu,scale,x1)  !tau
-    !tau(j)=ve/vs(j)   !tau
-    !if (nu.gt.999999999.000) tau(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    tau_F(j)=tau_F(j)+inv_tau2(j)
-
-end do
 
 !Sample lambda parameter from a gamma distribution
 rate=0.d0
@@ -365,8 +350,14 @@ if (nciclos.eq.1) then
  !   enddo
 end if
 
+scale=lambda*lambda
 do j=1,n_cov
-    mean=0.d0;lhs=0.d0
+    !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
+    nu=sqrt(ve*scale / (sol(j)*sol(j)) )
+    inv_tau2(j)=inv_gauss (nu,scale,x1) 
+    tau_F(j)=tau_F(j)+inv_tau2(j)
+
+    temp=0.d0
     do i=1,nlines
         error(i)=error(i)+sol(j)*valor(i,j)
         temp=temp+error(i)*valor(i,j)
