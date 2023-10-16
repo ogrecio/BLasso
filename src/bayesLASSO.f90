@@ -36,7 +36,7 @@ real*8, allocatable:: t(:),ln_t(:),t_c(:),snp(:),snp2(:)
    integer :: umbral,sv,niter,iter,nciclos,n_ciclos,burnin,lag,lag_t,nm
     !Si es un caracter umbral es 1. Diferente de 1 para caracteres continuos.
 	!sv(=1para metropolis hasting;=2para wishart invertida)
-   real*8::alfa,h,r,y_mean,denomh,alfa_old,llhood,lambda
+   real*8::alfa,h,r,y_mean,denomh,alfa_old,llhood,lambda,scale
    real*8::mu,ve,ve_c,vg,vg_c,sd_st,apriorig(1,2),apriorie(1,2)
    real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),aprioris(:,:),inv_tau2(:),tau_F(:)
 
@@ -204,7 +204,7 @@ contains
 !algoritmo WISHART INVERTIDA
 subroutine wishart_inv
 integer:: xx(n_efectos) !nf=numero de efectos fijos + aleatorios + covariables
-real*8::nu,scale,rate,temp,inv_gauss
+real*8::rate,temp,inv_gauss
 
 
 !Sample lambda parameter from a gamma distribution
@@ -328,7 +328,7 @@ contains
 !Resuelve las ecuaciones por Gauss-Seidel
 subroutine seidel (niter,icadena)
    integer:: i,j, icadena,idum !,neq
-   real*8:: sum,rhs,lhs,temp2j,ruido,temp2,var_beta
+   real*8:: sum,rhs,lhs,temp2j,ruido,temp2,var_beta,nu
 
 mean=0.d0
 do i=1,n_datos
