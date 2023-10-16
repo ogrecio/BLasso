@@ -214,7 +214,7 @@ endif
 scale=lambda*lambda
 do j=1,n_cov
     !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    nu=sqrt(ve*scale/ (sol(j)*sol(j) )
+    nu=sqrt(ve*scale / (sol(j)*sol(j)) )
     inv_tau2(j)=inv_gauss (nu,scale,x1)  !tau
     !tau(j)=ve/vs(j)   !tau
     !if (nu.gt.999999999.000) tau(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
