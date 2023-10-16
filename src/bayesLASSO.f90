@@ -229,7 +229,10 @@ call wishart(ntrait,sc_S+1.d0,(n_datos)+3.d0,ve)
 
 sc_S=0.d0
     do i=1,n_datos
-       sc_S=sc_S+0.5*(error(i)*error(i) +sol(j)*sol(j)*(inv_tau2(j)))
+       sc_S=sc_S+0.5*(error(i)*error(i))
+    enddo
+    do i=1,n_cov
+       sc_S=sc_S+0.5*(sol(j)*sol(j)*inv_tau2(j))
     enddo
 call gamma(0.5d0*(n_datos-1)+0.5d0*n_cov,sc_S,x1,ve)
 ve = 1/ve
@@ -363,8 +366,8 @@ do j=1,n_cov
         temp=temp+error(i)*valor(i,j)
     enddo
 
-    temp=temp/(xpx(j)+(1.d0/inv_tau2(j)))
-    var_beta=ve/(xpx(j)+(1.d0/inv_tau2(j)))
+    temp=temp/(xpx(j)+inv_tau2(j))
+    var_beta=ve/(xpx(j)+inv_tau2(j))
 
     sol(j)=xnormal(x1)*sqrt(var_beta)+temp 
     do i=1,nlines
