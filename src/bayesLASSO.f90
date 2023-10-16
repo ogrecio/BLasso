@@ -640,7 +640,7 @@ CLOSE (10)
 call cpu_time(tiempo1)
 print *,'    START GIBBS'
 gebv=0.d0;sol=0.01d0;temp=0.d0;sol_efectos=0.d0;tau=0.d0;nm=0
-lambda=0;mu=0.d0;error=y;mean=0.d0;vep1=0.d0;vep2=0.d0;muf=0.d0
+mu=0.d0;error=y;mean=0.d0;vep1=0.d0;vep2=0.d0;muf=0.d0
 sd_st=0.0001d0;tot=0;acc=0;cont=0
 !********************COMIENZA GIBBS***********************
 !if (umbral.eq.1) error=error*100
