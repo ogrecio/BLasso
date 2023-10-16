@@ -38,7 +38,7 @@ real*8, allocatable:: t(:),ln_t(:),t_c(:),snp(:),snp2(:)
 	!sv(=1para metropolis hasting;=2para wishart invertida)
    real*8::alfa,h,r,y_mean,denomh,alfa_old,llhood,lambda
    real*8::mu,ve,ve_c,vg,vg_c,sd_st,apriorig(1,2),apriorie(1,2)
-   real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),aprioris(:,:),tau(:),tau_F(:)
+   real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),aprioris(:,:),inv_tau2(:),tau_F(:)
 
 !OTROS (contadores,semillas, formatos, etc)
 	integer :: io,contador,idum,horas,minutos,i,j,posj,k,q,df,n_df
@@ -102,7 +102,7 @@ n_cov=n_efectos
 print *,'# COVARIATES=', n_cov
 n_rand=0 !This version does not allowed effects with a covariance structure
 ALLOCATE (nf(n_efectos),nf_rand(n_rand-1),va(n_rand-1),va_c(n_rand-1),inivar(n_rand),&
-          apriorir(n_rand-1,2),aprioris(n_cov,2),tau(n_cov),tau_F(n_cov))
+          apriorir(n_rand-1,2),aprioris(n_cov,2),inv_tau2(n_cov),tau_F(n_cov))
 tau=0.01d0
 tau_F=0.d0
 read (22,*)   !Saltar linea
@@ -204,30 +204,30 @@ contains
 !algoritmo WISHART INVERTIDA
 subroutine wishart_inv
 integer:: xx(n_efectos) !nf=numero de efectos fijos + aleatorios + covariables
-real*8::nu,scale,temp,inv_gauss
+real*8::nu,scale,rate,temp,inv_gauss
 
 if (nciclos.eq.1) then !INITILIAZE lambda and inverse gaussian function
 lambda=1.d0
 endif
 
 !Sample VG
-scale=lambda**2
+scale=lambda*lambda
 do j=1,n_cov
     !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    nu=sqrt(ve)*lambda/ abs(sol(j))
-    vs(j)=inv_gauss (nu,scale,x1)  !tau
-    tau(j)=ve/vs(j)   !tau
-    if (nu.gt.999999999.000) tau(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    tau_F(j)=tau_F(j)+tau(j)
+    nu=sqrt(ve*scale/ (sol(j)*sol(j) )
+    inv_tau2(j)=inv_gauss (nu,scale,x1)  !tau
+    !tau(j)=ve/vs(j)   !tau
+    !if (nu.gt.999999999.000) tau(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
+    tau_F(j)=tau_F(j)+inv_tau2(j)
 
 end do
 
 !Sample lambda parameter from a gamma distribution
-scale=0.d0
+rate=0.d0
 do j=1,n_cov
-    scale=scale+0.5d0*(tau(j)/ve)
+    rate=rate+0.5d0/inv_tau2(j)
 enddo
-call gamma2(n_cov+1.d0,scale+1.7d0,x2,lambda)
+call gamma2(n_cov+1.d0,rate+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
 
 write (34,*) lambda,mu,scale
@@ -335,14 +335,14 @@ contains
 !Resuelve las ecuaciones por Gauss-Seidel
 subroutine seidel (niter,icadena)
    integer:: i,j, icadena,idum !,neq
-   real*8:: sum,rhs,lhs,temp2j,ruido,temp2
+   real*8:: sum,rhs,lhs,temp2j,ruido,temp2,var_beta
 
 mean=0.d0
 do i=1,n_datos
    error(i)=error(i)+mu
    mean=mean+error(i)
 enddo
-mu=mean/float(n_datos) !+gasdev(x2)*sqrt(ve/float(n_datos))
+mu=mean/float(n_datos)+xnormal(x1)*sqrt(ve/float(n_datos))
 do i=1,n_datos
    error(i)=error(i)-mu
 enddo
@@ -359,13 +359,21 @@ end if
 
 do j=1,n_cov
     mean=0.d0;lhs=0.d0
-    lhs=xpx(j)
-    rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
-    temp=rhs/(lhs+ve/tau(j))
-    error=error-valor(:,j)*(temp-sol(j))
-    sol(j)=temp
+    do i=1,nlines
+        error(i)=error(i)+sol(j)*valor(i,j)
+        temp=temp+error(i)*valor(i,j)
+    enddo
+
+    temp=temp/(xpx(j)+(1.d0/inv_tau2(j)))
+    var_beta=vare/(xpx(j)+(1.d0/inv_tau2(j)))
+
+    sol(j)=xnormal(x1)*sqrt(var_beta)+temp 
+    do i=1,nlines
+        error(i)=error(i)-sol(j)*valor(i,j)
+    enddo
 enddo
 
+!!!!!*****tau(j)=ve/vs(j)   !tau
 return
 end subroutine seidel
 
