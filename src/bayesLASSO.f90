@@ -1,7 +1,7 @@
 module variables
  implicit none
 
-! Número de ANIMALES, DATOS Y EFECTOS
+! NÃºmero de ANIMALES, DATOS Y EFECTOS
    integer (kind=4):: n_animal,n_datos,nf1,maxrec,maxrec_c,n_efectos,n_rand,n_cov,ntrait,n_cat,n_snp
    character (len=14), allocatable::id(:)
    character (len=14)::phen_id
@@ -10,22 +10,22 @@ module variables
 !**********PARAMETROS ***********
 !********************************
      PARAMETER (ntrait=1)        !Numero de caracteres
- !   PARAMETER (maxrec=1370000) !Número de elementos NO nulos
+ !   PARAMETER (maxrec=1370000) !NÃºmero de elementos NO nulos
 !********************************
 
  !  common /genea/ padre,madre,cod
  !  common /gen1/ d,y,valor
    integer, allocatable:: padre (:), madre (:),codcontrol(:),ani(:)
-   integer, allocatable:: cen(:) !maxan x número de efectos
+   integer, allocatable:: cen(:) !maxan x nÃºmero de efectos
    real*8, allocatable:: valor(:,:),y(:),y1(:),y2(:)
 real*8, allocatable:: t(:),ln_t(:),t_c(:),snp(:),snp2(:)
    real*8, allocatable:: d(:) !diagonal de A
-   integer, allocatable:: nf(:),nf_rand(:),vdf(:) !número de niveles de ef.fijos y ef.aleatorios
+   integer, allocatable:: nf(:),nf_rand(:),vdf(:) !nÃºmero de niveles de ef.fijos y ef.aleatorios
 
 ! ECUACIONES
 !   common /matriz / irow,icol,xval
-   integer:: ii,neq !número de ecuaciones del MME
-!    parameter (neq=nf1+nf2+nf3+n_reb+n_ani_dat+n_animal) !Número máximo de ecuaciones
+   integer:: ii,neq !nÃºmero de ecuaciones del MME
+!    parameter (neq=nf1+nf2+nf3+n_reb+n_ani_dat+n_animal) !NÃºmero mÃ¡ximo de ecuaciones
 !   common /equs/ sol1,sol2,rhs
    real*8, allocatable:: error (:),solf(:),vep1(:),vep2(:),rhs (:),sol(:),sol_efectos(:)
    real*8, allocatable:: gebv(:),xpx(:)
@@ -77,7 +77,7 @@ CONTAINS
 SUBROUTINE inic
 integer :: pf
 
-ii=1          !Número de cadenas que se lanzan
+ii=1          !NÃºmero de cadenas que se lanzan
 niter=1       !Numero de iteraciones por cada vez que se resuelve por Gauss-Seidel
 pf=1 !read *,pf
   print *,'Enter name of PARAMETER file'
@@ -137,7 +137,7 @@ end do
    print *,'residual apriori variance=',apriorie(1,1)
    print *,'df=',apriorie(1,2)
 
-!****DETERMINACIÓN Y NOMBRAMIENTO DE LOS CARACTERES********
+!****DETERMINACIÃ“N Y NOMBRAMIENTO DE LOS CARACTERES********
 read (22,*)   !Saltar linea
 !name
    read (22,*) name
@@ -347,7 +347,7 @@ do i=1,n_datos
    error(i)=error(i)-mu
 enddo
 if (nciclos.eq.1) then
-!setup xpx=diag(X«X) AL
+!setup xpx=diag(XÂ«X) AL
     xpx=0
     do i=1,n_cov
         xpx(i)=dot_product(valor(:,i),valor(:,i))
@@ -380,7 +380,7 @@ contains
 subroutine thresholds
 
 t(1)=0.d0
-!Samplear umbrales en caso de más de 2 categorías
+!Samplear umbrales en caso de mÃ¡s de 2 categorÃ­as
 if (n_cat.gt.2) then
   call sct(t,sc_t0)
   do k=1,10
@@ -496,7 +496,7 @@ subroutine predictions
 
  open (79,file='testing.pred.txt', form='formatted')
  n_yng=0
- DO  !Lee el número de lineas en el archivo de genealogia
+ DO  !Lee el nÃºmero de lineas en el archivo de genealogia
   read (11,*,iostat=io)
   IF(io.ne.0) EXIT
   n_yng=n_yng+1
@@ -686,7 +686,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
  340 format (f16.5,5x,f16.4,5x,f16.5)
 end do
 
-!______Final de Gibbs-Sampling. Creación de ficheros de salida____________________
+!______Final de Gibbs-Sampling. CreaciÃ³n de ficheros de salida____________________
 print *,'writting solutions and vep'
  VEf = VES/float(nm)
  hf=hs/float(nm)
@@ -994,44 +994,44 @@ subroutine normp ( z, p, q, pdf )
 !
   implicit none
 
-  real ( kind = 8 ) :: cutoff = 7.071D+00
-  real ( kind = 8 ) expntl
-  real ( kind = 8 ) p
-  real ( kind = 8 ) :: p0 = 220.2068679123761D+00
-  real ( kind = 8 ) :: p1 = 221.2135961699311D+00
-  real ( kind = 8 ) :: p2 = 112.0792914978709D+00
-  real ( kind = 8 ) :: p3 = 33.91286607838300D+00
-  real ( kind = 8 ) :: p4 = 6.373962203531650D+00
-  real ( kind = 8 ) :: p5 = 0.7003830644436881D+00
-  real ( kind = 8 ) :: p6 = 0.03526249659989109D+00
-  real ( kind = 8 ) pdf
-  real ( kind = 8 ) q
-  real ( kind = 8 ) :: q0 = 440.4137358247522D+00
-  real ( kind = 8 ) :: q1 = 793.8265125199484D+00
-  real ( kind = 8 ) :: q2 = 637.3336333788311D+00
-  real ( kind = 8 ) :: q3 = 296.5642487796737D+00
-  real ( kind = 8 ) :: q4 = 86.78073220294608D+00
-  real ( kind = 8 ) :: q5 = 16.06417757920695D+00
-  real ( kind = 8 ) :: q6 = 1.755667163182642D+00
-  real ( kind = 8 ) :: q7 = 0.08838834764831844D+00
-  real ( kind = 8 ) :: root2pi = 2.506628274631001D+00
-  real ( kind = 8 ) z
-  real ( kind = 8 ) zabs
+  real*8:: cutoff = 7.071D+00
+  real*8:: expntl
+  real*8:: p
+  real*8:: p0 = 220.2068679123761D+00
+  real*8:: p1 = 221.2135961699311D+00
+  real*8:: p2 = 112.0792914978709D+00
+  real*8:: p3 = 33.91286607838300D+00
+  real*8:: p4 = 6.373962203531650D+00
+  real*8:: p5 = 0.7003830644436881D+00
+  real*8:: p6 = 0.03526249659989109D+00
+  real*8:: pdf
+  real*8:: q
+  real*8:: q0 = 440.4137358247522D+00
+  real*8:: q1 = 793.8265125199484D+00
+  real*8:: q2 = 637.3336333788311D+00
+  real*8:: q3 = 296.5642487796737D+00
+  real*8:: q4 = 86.78073220294608D+00
+  real*8:: q5 = 16.06417757920695D+00
+  real*8:: q6 = 1.755667163182642D+00
+  real*8:: q7 = 0.08838834764831844D+00
+  real*8:: root2pi = 2.506628274631001D+00
+  real*8:: z
+  real*8:: zabs
 
   zabs = abs ( z )
 !
 !  37 < |Z|.
 !
-  if ( 37.0D+00 < zabs ) then
+  if ( 37.0D0 < zabs ) then
 
-    pdf = 0.0D+00
-    p = 0.0D+00
+    pdf = 0.0D0
+    p = 0.0D0
 !
 !  |Z| <= 37.
 !
   else
 
-    expntl = exp ( - 0.5D+00 * zabs * zabs )
+    expntl = exp ( - 0.5D0 * zabs * zabs )
     pdf = expntl / root2pi
 !
 !  |Z| < CUTOFF = 10 / sqrt(2).
@@ -1060,21 +1060,21 @@ subroutine normp ( z, p, q, pdf )
     else
 
       p = pdf / ( &
-        zabs + 1.0D+00 / ( &
-        zabs + 2.0D+00 / ( &
-        zabs + 3.0D+00 / ( &
-        zabs + 4.0D+00 / ( &
-        zabs + 0.65D+00 )))))
+        zabs + 1.0D0 / ( &
+        zabs + 2.0D0 / ( &
+        zabs + 3.0D0 / ( &
+        zabs + 4.0D0 / ( &
+        zabs + 0.65D0 )))))
 
     end if
 
   end if
 
-  if ( z < 0.0D+00 ) then
-    q = 1.0D+00 - p
+  if ( z < 0.0D0 ) then
+    q = 1.0D0 - p
   else
     q = p
-    p = 1.0D+00 - q
+    p = 1.0D0 - q
   end if
 
   return
@@ -1083,7 +1083,7 @@ end
 
 
 !___________SUB LUNIF___________________________
-!Generacion de un número uniforme,s1 la semilla !
+!Generacion de un nÃºmero uniforme,s1 la semilla !
       function lunif (s1,ll)                    !
       implicit doubleprecision (a-h,o-z)        !
       doubleprecision s1,unif                   !
@@ -1093,7 +1093,7 @@ end
 !_______________________________________________!
 
 !______________SUB UNIF_________________________
-!Generacion de un número uniforme,s1 la semilla !
+!Generacion de un nÃºmero uniforme,s1 la semilla !
       function unif (s1)                        !
       implicit doubleprecision (a-h,o-z)        !
       real*8 s1,unif                   !
@@ -1108,8 +1108,8 @@ end
 !_______________________________________________!
 
 !______________SUB XNOR______________________________
- !Calcula la abcisa para cualquier función           !
- ! de distribución prob                              !
+ !Calcula la abcisa para cualquier funciÃ³n           !
+ ! de distribuciÃ³n prob                              !
       FUNCTION XNOR(prob)                            !
       implicit doubleprecision (a-h,o-z)             !
       if (prob.lt..5) then                           !
