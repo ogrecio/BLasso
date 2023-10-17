@@ -1,7 +1,7 @@
 module variables
  implicit none
 
-! Número de ANIMALES, DATOS Y EFECTOS
+! N˙mero de ANIMALES, DATOS Y EFECTOS
    integer (kind=4):: n_animal,n_datos,nf1,maxrec,maxrec_c,n_efectos,n_rand,n_cov,ntrait,n_cat,n_snp
    character (len=14), allocatable::id(:)
    character (len=14)::phen_id
@@ -10,22 +10,22 @@ module variables
 !**********PARAMETROS ***********
 !********************************
      PARAMETER (ntrait=1)        !Numero de caracteres
- !   PARAMETER (maxrec=1370000) !Número de elementos NO nulos
+ !   PARAMETER (maxrec=1370000) !N˙mero de elementos NO nulos
 !********************************
 
  !  common /genea/ padre,madre,cod
  !  common /gen1/ d,y,valor
    integer, allocatable:: padre (:), madre (:),codcontrol(:),ani(:)
-   integer, allocatable:: cen(:) !maxan x número de efectos
+   integer, allocatable:: cen(:) !maxan x n˙mero de efectos
    real*8, allocatable:: valor(:,:),y(:),y1(:),y2(:)
 real*8, allocatable:: t(:),ln_t(:),t_c(:),snp(:),snp2(:)
    real*8, allocatable:: d(:) !diagonal de A
-   integer, allocatable:: nf(:),nf_rand(:),vdf(:) !número de niveles de ef.fijos y ef.aleatorios
+   integer, allocatable:: nf(:),nf_rand(:),vdf(:) !n˙mero de niveles de ef.fijos y ef.aleatorios
 
 ! ECUACIONES
 !   common /matriz / irow,icol,xval
-   integer:: ii,neq !número de ecuaciones del MME
-!    parameter (neq=nf1+nf2+nf3+n_reb+n_ani_dat+n_animal) !Número máximo de ecuaciones
+   integer:: ii,neq !n˙mero de ecuaciones del MME
+!    parameter (neq=nf1+nf2+nf3+n_reb+n_ani_dat+n_animal) !N˙mero m·ximo de ecuaciones
 !   common /equs/ sol1,sol2,rhs
    real*8, allocatable:: error (:),solf(:),vep1(:),vep2(:),rhs (:),sol(:),sol_efectos(:)
    real*8, allocatable:: gebv(:),xpx(:)
@@ -36,9 +36,9 @@ real*8, allocatable:: t(:),ln_t(:),t_c(:),snp(:),snp2(:)
    integer :: umbral,sv,niter,iter,nciclos,n_ciclos,burnin,lag,lag_t,nm
     !Si es un caracter umbral es 1. Diferente de 1 para caracteres continuos.
 	!sv(=1para metropolis hasting;=2para wishart invertida)
-   real*8::alfa,h,r,y_mean,denomh,alfa_old,llhood,lambda,scale
+   real*8::alfa,h,r,y_mean,denomh,alfa_old,llhood,lambda
    real*8::mu,ve,ve_c,vg,vg_c,sd_st,apriorig(1,2),apriorie(1,2)
-   real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),aprioris(:,:),inv_tau2(:),tau_F(:)
+   real*8,allocatable::va(:),va_c(:),inivar(:),apriorir(:,:),vs(:),aprioris(:,:),tau(:),tau_F(:)
 
 !OTROS (contadores,semillas, formatos, etc)
 	integer :: io,contador,idum,horas,minutos,i,j,posj,k,q,df,n_df
@@ -77,7 +77,7 @@ CONTAINS
 SUBROUTINE inic
 integer :: pf
 
-ii=1          !Número de cadenas que se lanzan
+ii=1          !N˙mero de cadenas que se lanzan
 niter=1       !Numero de iteraciones por cada vez que se resuelve por Gauss-Seidel
 pf=1 !read *,pf
   print *,'Enter name of PARAMETER file'
@@ -102,8 +102,8 @@ n_cov=n_efectos
 print *,'# COVARIATES=', n_cov
 n_rand=0 !This version does not allowed effects with a covariance structure
 ALLOCATE (nf(n_efectos),nf_rand(n_rand-1),va(n_rand-1),va_c(n_rand-1),inivar(n_rand),&
-          apriorir(n_rand-1,2),aprioris(n_cov,2),inv_tau2(n_cov),tau_F(n_cov))
-inv_tau2=0.01d0
+          apriorir(n_rand-1,2),aprioris(n_cov,2),tau(n_cov),tau_F(n_cov))
+tau=0.01d0
 tau_F=0.d0
 read (22,*)   !Saltar linea
 nf(1)=0
@@ -137,7 +137,7 @@ end do
    print *,'residual apriori variance=',apriorie(1,1)
    print *,'df=',apriorie(1,2)
 
-!****DETERMINACIÓN Y NOMBRAMIENTO DE LOS CARACTERES********
+!****DETERMINACI”N Y NOMBRAMIENTO DE LOS CARACTERES********
 read (22,*)   !Saltar linea
 !name
    read (22,*) name
@@ -204,15 +204,30 @@ contains
 !algoritmo WISHART INVERTIDA
 subroutine wishart_inv
 integer:: xx(n_efectos) !nf=numero de efectos fijos + aleatorios + covariables
-real*8::rate,temp,inv_gauss
+real*8::nu,scale,temp,inv_gauss
 
+if (nciclos.eq.1) then !INITILIAZE lambda and inverse gaussian function
+lambda=1.d0
+endif
+
+!Sample VG
+scale=lambda**2
+do j=1,n_cov
+    !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
+    nu=sqrt(ve)*lambda/ abs(sol(j))
+    vs(j)=inv_gauss (nu,scale,x1)  !tau
+    tau(j)=ve/vs(j)   !tau
+    if (nu.gt.999999999.000) tau(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
+    tau_F(j)=tau_F(j)+tau(j)
+
+end do
 
 !Sample lambda parameter from a gamma distribution
-rate=0.d0
+scale=0.d0
 do j=1,n_cov
-    rate=rate+0.5d0/inv_tau2(j)
+    scale=scale+0.5d0*(tau(j)/ve)
 enddo
-call gamma2(n_cov+1.d0,rate+1.7d0,x2,lambda)
+call gamma2(n_cov+1.d0,scale+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
 
 write (34,*) lambda,mu,scale
@@ -227,15 +242,6 @@ do i=1,n_datos
 enddo
 call wishart(ntrait,sc_S+1.d0,(n_datos)+3.d0,ve)
 
-sc_S=0.d0
-    do i=1,n_datos
-       sc_S=sc_S+0.5*(error(i)*error(i))
-    enddo
-    do i=1,n_cov
-       sc_S=sc_S+0.5*(sol(j)*sol(j)*inv_tau2(j))
-    enddo
-call gamma(0.5d0*(n_datos-1)+0.5d0*n_cov,sc_S,x1,ve)
-ve = 1/ve
 end subroutine wishart_inv
 !____NON PARAMETRIC SUM OF SQUARES for additive genetic______
 
@@ -329,19 +335,19 @@ contains
 !Resuelve las ecuaciones por Gauss-Seidel
 subroutine seidel (niter,icadena)
    integer:: i,j, icadena,idum !,neq
-   real*8:: sum,rhs,lhs,temp2j,ruido,temp2,var_beta,nu
+   real*8:: sum,rhs,lhs,temp2j,ruido,temp2
 
 mean=0.d0
 do i=1,n_datos
    error(i)=error(i)+mu
    mean=mean+error(i)
 enddo
-mu=mean/float(n_datos)+xnormal(x1)*sqrt(ve/float(n_datos))
+mu=mean/float(n_datos) !+gasdev(x2)*sqrt(ve/float(n_datos))
 do i=1,n_datos
    error(i)=error(i)-mu
 enddo
 if (nciclos.eq.1) then
-!setup xpx=diag(X«X) AL
+!setup xpx=diag(X´X) AL
     xpx=0
     do i=1,n_cov
         xpx(i)=dot_product(valor(:,i),valor(:,i))
@@ -351,30 +357,15 @@ if (nciclos.eq.1) then
  !   enddo
 end if
 
-scale=lambda*lambda
-do j=1,n_cov
-    if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
-    nu=sqrt(ve*scale / (sol(j)*sol(j)) )
-    inv_tau2(j)=inv_gauss (nu,scale,x1) 
-    tau_F(j)=tau_F(j)+1.d0/inv_tau2(j)
-enddo
 do j=1,n_cov
     mean=0.d0;lhs=0.d0
-    temp=0.d0
-    do i=1,nlines
-        error(i)=error(i)+sol(j)*valor(i,j)
-        temp=temp+error(i)*valor(i,j)
-    enddo
-    
-    temp=temp/(xpx(j)+(1.d0/inv_tau2(j)))
-
-    sol(j)=xnormal(x1)*sqrt( ve/(xpx(j)+(1d0/inv_tau2(j))) )+temp 
-    do i=1,nlines
-        error(i)=error(i)-sol(j)*valor(i,j)
-    enddo
+    lhs=xpx(j)
+    rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
+    temp=rhs/(lhs+ve/tau(j))
+    error=error-valor(:,j)*(temp-sol(j))
+    sol(j)=temp
 enddo
 
-!!!!!*****tau(j)=ve/vs(j)   !tau
 return
 end subroutine seidel
 
@@ -389,7 +380,7 @@ contains
 subroutine thresholds
 
 t(1)=0.d0
-!Samplear umbrales en caso de más de 2 categorías
+!Samplear umbrales en caso de m·s de 2 categorÌas
 if (n_cat.gt.2) then
   call sct(t,sc_t0)
   do k=1,10
@@ -505,7 +496,7 @@ subroutine predictions
 
  open (79,file='testing.pred.txt', form='formatted')
  n_yng=0
- DO  !Lee el número de lineas en el archivo de genealogia
+ DO  !Lee el n˙mero de lineas en el archivo de genealogia
   read (11,*,iostat=io)
   IF(io.ne.0) EXIT
   n_yng=n_yng+1
@@ -516,7 +507,7 @@ subroutine predictions
 
  do n=1,n_yng
     read (11,*) y_real,id_yng,yng_snp(1:n_cov)
-    y_est=muf
+    y_est=0.d0
     do i=1,n_cov
        y_est=y_est+yng_snp(i)*sol_efectos(i)
     enddo
@@ -639,7 +630,7 @@ CLOSE (10)
 call cpu_time(tiempo1)
 print *,'    START GIBBS'
 gebv=0.d0;sol=0.01d0;temp=0.d0;sol_efectos=0.d0;tau=0.d0;nm=0
-mu=0.d0;error=y;mean=0.d0;vep1=0.d0;vep2=0.d0;muf=0.d0
+lambda=0;mu=0.d0;error=y;mean=0.d0;vep1=0.d0;vep2=0.d0;muf=0.d0
 sd_st=0.0001d0;tot=0;acc=0;cont=0
 !********************COMIENZA GIBBS***********************
 !if (umbral.eq.1) error=error*100
@@ -681,7 +672,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
           write(*,*) '  RUNNING MEAN= ',muf/float(nm)
           open (32,file='GEBV_GRS.txt', form='formatted')
           write (32,*) 'SampleID ObservedPhenotype GEBV'
-		gebv=0.0d0
+		gebv=0.d0
 		do i=1,n_datos
 			do j=1,n_cov
 				gebv(i)=gebv(i)+(sol_efectos(j)/float(nm))*valor(i,j)
@@ -695,7 +686,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
  340 format (f16.5,5x,f16.4,5x,f16.5)
 end do
 
-!______Final de Gibbs-Sampling. Creación de ficheros de salida____________________
+!______Final de Gibbs-Sampling. CreaciÛn de ficheros de salida____________________
 print *,'writting solutions and vep'
  VEf = VES/float(nm)
  hf=hs/float(nm)
@@ -713,7 +704,7 @@ print *,'writting solutions and vep'
  open (32,file='GEBV_GRS.txt', form='formatted')
  write (32,*) 'SampleID ObservedPhenotype GEBV'
 
- gebv=muf
+ gebv=0.d0
  do i=1,n_datos
   do j=1,n_cov
      gebv(i)=gebv(i)+sol_efectos(j)*valor(i,j)
@@ -1003,44 +994,44 @@ subroutine normp ( z, p, q, pdf )
 !
   implicit none
 
-  real*8:: cutoff = 7.071D0
-  real*8:: expntl
-  real*8:: p
-  real*8:: p0 = 220.2068679123761D0
-  real*8:: p1 = 221.2135961699311D0
-  real*8:: p2 = 112.0792914978709D0
-  real*8:: p3 = 33.91286607838300D0
-  real*8:: p4 = 6.373962203531650D0
-  real*8:: p5 = 0.7003830644436881D0
-  real*8:: p6 = 0.03526249659989109D0
-  real*8:: pdf
-  real*8:: q
-  real*8:: q0 = 440.4137358247522D0
-  real*8:: q1 = 793.8265125199484D0
-  real*8:: q2 = 637.3336333788311D0
-  real*8:: q3 = 296.5642487796737D0
-  real*8:: q4 = 86.78073220294608D0
-  real*8:: q5 = 16.06417757920695D0
-  real*8:: q6 = 1.755667163182642D0
-  real*8:: q7 = 0.08838834764831844D0
-  real*8:: root2pi = 2.506628274631001D0
-  real*8:: z
-  real*8:: zabs
+  real ( kind = 8 ) :: cutoff = 7.071D+00
+  real ( kind = 8 ) expntl
+  real ( kind = 8 ) p
+  real ( kind = 8 ) :: p0 = 220.2068679123761D+00
+  real ( kind = 8 ) :: p1 = 221.2135961699311D+00
+  real ( kind = 8 ) :: p2 = 112.0792914978709D+00
+  real ( kind = 8 ) :: p3 = 33.91286607838300D+00
+  real ( kind = 8 ) :: p4 = 6.373962203531650D+00
+  real ( kind = 8 ) :: p5 = 0.7003830644436881D+00
+  real ( kind = 8 ) :: p6 = 0.03526249659989109D+00
+  real ( kind = 8 ) pdf
+  real ( kind = 8 ) q
+  real ( kind = 8 ) :: q0 = 440.4137358247522D+00
+  real ( kind = 8 ) :: q1 = 793.8265125199484D+00
+  real ( kind = 8 ) :: q2 = 637.3336333788311D+00
+  real ( kind = 8 ) :: q3 = 296.5642487796737D+00
+  real ( kind = 8 ) :: q4 = 86.78073220294608D+00
+  real ( kind = 8 ) :: q5 = 16.06417757920695D+00
+  real ( kind = 8 ) :: q6 = 1.755667163182642D+00
+  real ( kind = 8 ) :: q7 = 0.08838834764831844D+00
+  real ( kind = 8 ) :: root2pi = 2.506628274631001D+00
+  real ( kind = 8 ) z
+  real ( kind = 8 ) zabs
 
   zabs = abs ( z )
 !
 !  37 < |Z|.
 !
-  if ( 37.0D0 < zabs ) then
+  if ( 37.0D+00 < zabs ) then
 
-    pdf = 0.0D0
-    p = 0.0D0
+    pdf = 0.0D+00
+    p = 0.0D+00
 !
 !  |Z| <= 37.
 !
   else
 
-    expntl = exp ( - 0.5D0 * zabs * zabs )
+    expntl = exp ( - 0.5D+00 * zabs * zabs )
     pdf = expntl / root2pi
 !
 !  |Z| < CUTOFF = 10 / sqrt(2).
@@ -1069,21 +1060,21 @@ subroutine normp ( z, p, q, pdf )
     else
 
       p = pdf / ( &
-        zabs + 1.0D0 / ( &
-        zabs + 2.0D0 / ( &
-        zabs + 3.0D0 / ( &
-        zabs + 4.0D0 / ( &
-        zabs + 0.65D0 )))))
+        zabs + 1.0D+00 / ( &
+        zabs + 2.0D+00 / ( &
+        zabs + 3.0D+00 / ( &
+        zabs + 4.0D+00 / ( &
+        zabs + 0.65D+00 )))))
 
     end if
 
   end if
 
-  if ( z < 0.0D0 ) then
-    q = 1.0D0 - p
+  if ( z < 0.0D+00 ) then
+    q = 1.0D+00 - p
   else
     q = p
-    p = 1.0D0 - q
+    p = 1.0D+00 - q
   end if
 
   return
@@ -1092,7 +1083,7 @@ end
 
 
 !___________SUB LUNIF___________________________
-!Generacion de un número uniforme,s1 la semilla !
+!Generacion de un n˙mero uniforme,s1 la semilla !
       function lunif (s1,ll)                    !
       implicit doubleprecision (a-h,o-z)        !
       doubleprecision s1,unif                   !
@@ -1102,7 +1093,7 @@ end
 !_______________________________________________!
 
 !______________SUB UNIF_________________________
-!Generacion de un número uniforme,s1 la semilla !
+!Generacion de un n˙mero uniforme,s1 la semilla !
       function unif (s1)                        !
       implicit doubleprecision (a-h,o-z)        !
       real*8 s1,unif                   !
@@ -1117,8 +1108,8 @@ end
 !_______________________________________________!
 
 !______________SUB XNOR______________________________
- !Calcula la abcisa para cualquier función           !
- ! de distribución prob                              !
+ !Calcula la abcisa para cualquier funciÛn           !
+ ! de distribuciÛn prob                              !
       FUNCTION XNOR(prob)                            !
       implicit doubleprecision (a-h,o-z)             !
       if (prob.lt..5) then                           !
