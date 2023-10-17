@@ -363,7 +363,7 @@ do j=1,n_cov
     mean=0.d0;lhs=0.d0
     lhs=xpx(j)
     rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
-    temp=rhs/(lhs+ve*inv_tau2(j))
+    temp=rhs/(lhs+inv_tau2(j))
     error=error-valor(:,j)*(temp-sol(j))
     sol(j)=temp
 enddo
