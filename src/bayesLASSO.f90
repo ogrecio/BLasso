@@ -510,7 +510,7 @@ subroutine predictions
 
  do n=1,n_yng
     read (11,*) y_real,id_yng,yng_snp(1:n_cov)
-    y_est=0.d0
+    y_est=muf
     do i=1,n_cov
        y_est=y_est+yng_snp(i)*sol_efectos(i)
     enddo
@@ -707,7 +707,7 @@ print *,'writting solutions and vep'
  open (32,file='GEBV_GRS.txt', form='formatted')
  write (32,*) 'SampleID ObservedPhenotype GEBV'
 
- gebv=0.d0
+ gebv=muf
  do i=1,n_datos
   do j=1,n_cov
      gebv(i)=gebv(i)+sol_efectos(j)*valor(i,j)
