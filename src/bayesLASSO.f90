@@ -357,12 +357,13 @@ do j=1,n_cov
     !if (abs(sol(j)).lt.0.0000001) sol(j)=0.0001d0 !print *,'beta ',k,' lower than 1.E-08'
     nu=sqrt(ve*scale / (sol(j)*sol(j)) )
     inv_tau2(j)=inv_gauss (nu,scale,x1) 
-    tau_F(j)=tau_F(j)+inv_tau2(j)
-
+    tau_F(j)=tau_F(j)+1.d0/inv_tau2(j)
+enddo
+do j=1,n_cov
     mean=0.d0;lhs=0.d0
     lhs=xpx(j)
     rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
-    temp=rhs/(lhs+inv_tau2(j))+xnormal(x1)*sqrt(ve/(lhs+inv_tau2(j)))
+    temp=rhs/(lhs+inv_tau2(j)) !+xnormal(x1)*sqrt(ve/(lhs+inv_tau2(j)))
     error=error-valor(:,j)*(temp-sol(j))
     sol(j)=temp
 enddo
@@ -674,7 +675,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
           write(*,*) '  RUNNING MEAN= ',muf/float(nm)
           open (32,file='GEBV_GRS.txt', form='formatted')
           write (32,*) 'SampleID ObservedPhenotype GEBV'
-		gebv=0.d0
+		gebv=0.0d
 		do i=1,n_datos
 			do j=1,n_cov
 				gebv(i)=gebv(i)+(sol_efectos(j)/float(nm))*valor(i,j)
