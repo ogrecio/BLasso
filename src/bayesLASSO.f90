@@ -103,7 +103,7 @@ print *,'# COVARIATES=', n_cov
 n_rand=0 !This version does not allowed effects with a covariance structure
 ALLOCATE (nf(n_efectos),nf_rand(n_rand-1),va(n_rand-1),va_c(n_rand-1),inivar(n_rand),&
           apriorir(n_rand-1,2),aprioris(n_cov,2),inv_tau2(n_cov),tau_F(n_cov))
-tau=0.01d0
+inv_tau2=0.01d0
 tau_F=0.d0
 read (22,*)   !Saltar linea
 nf(1)=0
@@ -362,7 +362,7 @@ do j=1,n_cov
     mean=0.d0;lhs=0.d0
     lhs=xpx(j)
     rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
-    temp=rhs/(lhs+inv_tau2(j))
+    temp=rhs/(lhs+1.d0*inv_tau2(j))
     error=error-valor(:,j)*(temp-sol(j))
     sol(j)=temp
 enddo
