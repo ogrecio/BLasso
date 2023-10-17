@@ -360,19 +360,12 @@ do j=1,n_cov
     inv_tau2(j)=inv_gauss (nu,scale,x1) 
     tau_F(j)=tau_F(j)+inv_tau2(j)
 
-    temp=0.d0
-    do i=1,nlines
-        error(i)=error(i)+sol(j)*valor(i,j)
-        temp=temp+error(i)*valor(i,j)
-    enddo
-
-    temp=temp/(xpx(j)+inv_tau2(j))
-    var_beta=ve/(xpx(j)+inv_tau2(j))
-
-    sol(j)=xnormal(x1)*sqrt(var_beta)+temp 
-    do i=1,nlines
-        error(i)=error(i)-sol(j)*valor(i,j)
-    enddo
+    mean=0.d0;lhs=0.d0
+    lhs=xpx(j)
+    rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
+    temp=rhs/(lhs+ve*inv_tau2(j))
+    error=error-valor(:,j)*(temp-sol(j))
+    sol(j)=temp
 enddo
 
 !!!!!*****tau(j)=ve/vs(j)   !tau
