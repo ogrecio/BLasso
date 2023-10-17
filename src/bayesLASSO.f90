@@ -236,7 +236,7 @@ sc_S=0.d0
     enddo
 call gamma(0.5d0*(n_datos-1)+0.5d0*n_cov,sc_S,x1,ve)
 ve = 1/ve
-
+ve=18
 end subroutine wishart_inv
 !____NON PARAMETRIC SUM OF SQUARES for additive genetic______
 
@@ -362,7 +362,7 @@ do j=1,n_cov
     mean=0.d0;lhs=0.d0
     lhs=xpx(j)
     rhs=dot_product( valor(:,j) , error(:)) + lhs*sol(j)
-    temp=rhs/(lhs+1.d0*inv_tau2(j))
+    temp=rhs/(lhs+inv_tau2(j))
     error=error-valor(:,j)*(temp-sol(j))
     sol(j)=temp
 enddo
