@@ -214,7 +214,7 @@ do j=1,n_cov
 enddo
 call gamma2(n_cov+1.d0,rate+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
-
+lambda=384
 write (34,*) lambda,mu,scale
 
 !   call scS
