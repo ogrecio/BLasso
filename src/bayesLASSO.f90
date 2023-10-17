@@ -214,7 +214,7 @@ do j=1,n_cov
 enddo
 call gamma2(n_cov+1.d0,rate+1.7d0,x2,lambda)
 lambda=sqrt(lambda)
-lambda=384
+
 write (34,*) lambda,mu,scale
 
 !   call scS
@@ -236,7 +236,6 @@ sc_S=0.d0
     enddo
 call gamma(0.5d0*(n_datos-1)+0.5d0*n_cov,sc_S,x1,ve)
 ve = 1/ve
-ve=18
 
 end subroutine wishart_inv
 !____NON PARAMETRIC SUM OF SQUARES for additive genetic______
