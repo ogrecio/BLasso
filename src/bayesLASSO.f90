@@ -368,9 +368,8 @@ do j=1,n_cov
     enddo
     
     temp=temp/(xpx(j)+(1.d0/inv_tau2(j)))
-    var_beta=vare/(xpx(j)+(1.d0/inv_tau2(j)))
 
-    beta(j)=xnormal(x1)*sqrt(var_beta)+temp 
+    sol(j)=xnormal(x1)*sqrt( ve/(xpx(j)+(1.d0/inv_tau2(j))) )+temp 
     do i=1,nlines
         error(i)=error(i)-sol(j)*valor(i,j)
     enddo
