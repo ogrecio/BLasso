@@ -361,11 +361,19 @@ do j=1,n_cov
 enddo
 do j=1,n_cov
     mean=0.d0;lhs=0.d0
-    lhs=xpx(j)
-    rhs=dot_product( valor(:,j) , y(:)) 
-    temp=rhs/(lhs+inv_tau2(j)) !+xnormal(x1)*sqrt(ve/(lhs+inv_tau2(j)))
-    error=error-valor(:,j)*(temp-sol(j))
-    sol(j)=temp
+    temp=0.d0
+    do i=1,nlines
+        error(i)=error(i)+sol(j)*valor(i,j)
+        temp=temp+error(i)*valor(i,j)
+    enddo
+    
+    temp=temp/(xpx(j)+(1.d0/inv_tau2(j)))
+    var_beta=vare/(xpx(j)+(1.d0/inv_tau2(j)))
+
+    beta(j)=xnormal(x1)*sqrt(var_beta)+temp 
+    do i=1,nlines
+        error(i)=error(i)-sol(j)*valor(i,j)
+    enddo
 enddo
 
 !!!!!*****tau(j)=ve/vs(j)   !tau
