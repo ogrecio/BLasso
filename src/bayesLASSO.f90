@@ -675,7 +675,7 @@ if (mod(nciclos,10).eq.0) print '(a16,i9,a4,f16.4,a8,f16.4))','Gibbs iteration '
           write(*,*) '  RUNNING MEAN= ',muf/float(nm)
           open (32,file='GEBV_GRS.txt', form='formatted')
           write (32,*) 'SampleID ObservedPhenotype GEBV'
-		gebv=0.0d
+		gebv=0.0d0
 		do i=1,n_datos
 			do j=1,n_cov
 				gebv(i)=gebv(i)+(sol_efectos(j)/float(nm))*valor(i,j)
