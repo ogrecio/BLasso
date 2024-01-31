@@ -5,8 +5,6 @@
 
    **BLasso** is fortran code to implement Bayesian Lasso in a genome-enabled prediction framework
 
-   **ATTENTION- BLAsso is suffering some updates and is currently not available for downloading, please be patient and visit this page frequently for new updates.**
-   Sorry for any inconvenience
 
 # Introduction
 This manual describes how to use the program BLasso, which is focused on the analysis of genomic data using Bayesian LASSO. BLasso can analyze continuos and categorical traits. 
