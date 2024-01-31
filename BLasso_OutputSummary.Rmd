@@ -38,7 +38,7 @@ library(pander) # allow a better impression of tables
 ```
 
 
-# PREDICTIVE ACCURACY in the testing set
+# PREDICTIVE ACCURACY
 
 ```{r, include='FALSE'}
 
@@ -54,8 +54,8 @@ Next is the scatter plot of the predicted and observed phenotypes in the trainin
 ```{r, predictive_accuracy_train, include='TRUE'}
 
 
- plot(pred_train$GEBV,y_real$V1[1:length(pred_train$GEBV)],xlab="yHat",ylab="Real y")
- plot(pred_train$GEBV,pred_train$ObservedPhenotype,ylab="yHat",xlab="Observed y")
+ #plot(pred_train$GEBV,y_real$V1[1:length(pred_train$GEBV)],xlab="yHat",ylab="Real y")
+ plot(pred_train$GEBV,pred_train$ObservedPhenotype,xlab="yHat",ylab="Observed y")
  lm.fit<-lm(pred_train$ObservedPhenotype~pred_train$GEBV)
  abline(lm.fit,col=2)
 ```
