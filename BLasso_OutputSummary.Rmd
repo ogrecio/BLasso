@@ -1,7 +1,7 @@
 ---
 title: "Output Summary from BLasso"
 author: "Oscar Gonzalez-Recio"
-date: " January 14th, 2021"
+date: " January 14th, 2021 (updated March 23rd 2025)"
 output:
   html_document: 
     code_folding: hide
@@ -90,7 +90,7 @@ pander(beta_hat_subset[1:20,])
 
 ```
 
-The distribution of the variable importance was:
+The next plot shows the estimates of variable effects in the model:
 
 ```{r, variable_importance2, include='TRUE'}
 
